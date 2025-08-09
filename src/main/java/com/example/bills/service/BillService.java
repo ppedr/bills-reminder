@@ -35,7 +35,7 @@ public class BillService {
         return billRepository.findAll();
     }
 
-    @Scheduled(cron = "0 0 9 * * ?")
+    @Scheduled(fixedRate = 1 * 60 * 1000)
     public void sendDueBillsReminders() {
         List<Bill> dueBills = billRepository.findByDueDate(LocalDate.now());
         for (Bill bill : dueBills) {
@@ -48,6 +48,7 @@ public class BillService {
             } catch (MailException e) {
                 logger.warn("Failed to send reminder for {}: {}", bill.getName(), e.getMessage());
             }
+            mailSender.send(message);
         }
     }
 }
