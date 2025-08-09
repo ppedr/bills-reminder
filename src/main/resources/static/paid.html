@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Paid Bills</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav>
+    <a href="index.html">Home</a>
+    <a href="create.html">Create Bill</a>
+    <a href="unpaid.html">Unpaid Bills</a>
+</nav>
+<h1>Paid Bills</h1>
+<input type="month" id="monthPicker">
+<button id="loadBtn">Load</button>
+<table id="billsTable">
+    <thead><tr><th>Name</th><th>Due Date</th><th>Email</th><th>Type</th></tr></thead>
+    <tbody></tbody>
+</table>
+<script>
+const tableBody = document.querySelector('#billsTable tbody');
+
+document.getElementById('loadBtn').addEventListener('click', async () => {
+    const value = document.getElementById('monthPicker').value;
+    if(!value) return;
+    const [year, month] = value.split('-');
+    const res = await fetch(`/bills/paid?year=${year}&month=${month}`);
+    const bills = await res.json();
+    tableBody.innerHTML = '';
+    bills.forEach(b => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${b.name}</td><td>${b.dueDate}</td><td>${b.email}</td><td>${b.type}</td>`;
+        tableBody.appendChild(row);
+    });
+});
+</script>
+</body>
+</html>

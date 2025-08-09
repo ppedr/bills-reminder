@@ -9,4 +9,5 @@ import java.util.List;
 public interface BillRepository extends JpaRepository<Bill, Long> {
     List<Bill> findByDueDate(LocalDate dueDate);
     List<Bill> findByPaidFalse();
+    List<Bill> findByPaidAndDueDateBetween(boolean paid, LocalDate start, LocalDate end);
 }

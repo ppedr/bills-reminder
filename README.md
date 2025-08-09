@@ -19,5 +19,15 @@ mvn test
 
 - `POST /bills` – register a new bill.
 - `GET /bills` – list all bills.
+- `GET /bills/paid?year=YYYY&month=MM` – list paid bills for a given month.
+- `GET /bills/unpaid?year=YYYY&month=MM` – list unpaid bills for a given month.
 - `GET /bills/reminder` – manually trigger due bill reminders.
 - `POST /bills/{id}/paid` – mark a bill as paid so no reminder is sent.
+
+## Web Interface
+
+Static pages are available under `src/main/resources/static`:
+
+- `create.html` – form for creating a bill.
+- `paid.html` – view paid bills by month.
+- `unpaid.html` – view unpaid bills by month with an option to mark them as paid.
