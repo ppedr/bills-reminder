@@ -37,6 +37,12 @@ public class BillService {
         return billRepository.findAll();
     }
 
+    public List<Bill> findByPaidAndMonth(boolean paid, int year, int month) {
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = start.plusMonths(1).minusDays(1);
+        return billRepository.findByPaidAndDueDateBetween(paid, start, end);
+    }
+
     @Transactional
     public Bill markAsPaid(Long id) {
         Bill bill = billRepository.findById(id)

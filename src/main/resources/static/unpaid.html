@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unpaid Bills</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav>
+    <a href="index.html">Home</a>
+    <a href="create.html">Create Bill</a>
+    <a href="paid.html">Paid Bills</a>
+</nav>
+<h1>Unpaid Bills</h1>
+<input type="month" id="monthPicker">
+<button id="loadBtn">Load</button>
+<table id="billsTable">
+    <thead><tr><th>Name</th><th>Due Date</th><th>Email</th><th>Type</th><th>Action</th></tr></thead>
+    <tbody></tbody>
+</table>
+<script>
+const tableBody = document.querySelector('#billsTable tbody');
+
+async function loadBills() {
+    const value = document.getElementById('monthPicker').value;
+    if(!value) return;
+    const [year, month] = value.split('-');
+    const res = await fetch(`/bills/unpaid?year=${year}&month=${month}`);
+    const bills = await res.json();
+    tableBody.innerHTML = '';
+    bills.forEach(b => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${b.name}</td><td>${b.dueDate}</td><td>${b.email}</td><td>${b.type}</td><td><button data-id="${b.id}">Mark Paid</button></td>`;
+        row.querySelector('button').addEventListener('click', async () => {
+            await fetch(`/bills/${b.id}/paid`, {method: 'POST'});
+            loadBills();
+        });
+        tableBody.appendChild(row);
+    });
+}
+
+document.getElementById('loadBtn').addEventListener('click', loadBills);
+</script>
+</body>
+</html>

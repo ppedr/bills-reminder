@@ -29,6 +29,18 @@ public class BillController {
         log.info("Fetching all bills");
         return billService.findAll();
     }
+
+    @GetMapping("/paid")
+    public List<Bill> paid(@RequestParam int year, @RequestParam int month) {
+        log.info("Fetching paid bills for {}/{}", year, month);
+        return billService.findByPaidAndMonth(true, year, month);
+    }
+
+    @GetMapping("/unpaid")
+    public List<Bill> unpaid(@RequestParam int year, @RequestParam int month) {
+        log.info("Fetching unpaid bills for {}/{}", year, month);
+        return billService.findByPaidAndMonth(false, year, month);
+    }
     
     @GetMapping("/reminder")
     public void forceReminder() {

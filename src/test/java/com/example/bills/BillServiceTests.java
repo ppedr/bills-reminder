@@ -3,6 +3,8 @@ package com.example.bills;
 import com.example.bills.model.Bill;
 import com.example.bills.model.BillType;
 import com.example.bills.service.BillService;
+import com.example.bills.repository.BillRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +23,16 @@ class BillServiceTests {
     @Autowired
     private BillService billService;
 
+    @Autowired
+    private BillRepository billRepository;
+
     @MockBean
     private JavaMailSender mailSender;
+
+    @BeforeEach
+    void clean() {
+        billRepository.deleteAll();
+    }
 
     @Test
     void sendsReminderForDueBills() {
@@ -69,5 +79,31 @@ class BillServiceTests {
         Bill next = bills.stream().filter(b -> !b.getId().equals(bill.getId())).findFirst().get();
         assertFalse(next.isPaid());
         assertEquals(LocalDate.of(2024, 6, 10), next.getDueDate());
+    }
+
+    @Test
+    void findsBillsByMonthAndStatus() {
+        Bill paidBill = new Bill();
+        paidBill.setName("Electricity");
+        paidBill.setDueDate(LocalDate.of(2024, 5, 20));
+        paidBill.setEmail("test@example.com");
+        paidBill.setType(BillType.ELECTRICITY);
+        paidBill.setPaid(true);
+        billService.save(paidBill);
+
+        Bill unpaidBill = new Bill();
+        unpaidBill.setName("Gas");
+        unpaidBill.setDueDate(LocalDate.of(2024, 5, 21));
+        unpaidBill.setEmail("test@example.com");
+        unpaidBill.setType(BillType.GAS);
+        billService.save(unpaidBill);
+
+        List<Bill> paid = billService.findByPaidAndMonth(true, 2024, 5);
+        List<Bill> unpaid = billService.findByPaidAndMonth(false, 2024, 5);
+
+        assertEquals(1, paid.size());
+        assertEquals("Electricity", paid.get(0).getName());
+        assertEquals(1, unpaid.size());
+        assertEquals("Gas", unpaid.get(0).getName());
     }
 }
