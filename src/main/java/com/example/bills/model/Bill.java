@@ -1,6 +1,8 @@
 package com.example.bills.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,6 +18,10 @@ public class Bill {
     private String name;
     private LocalDate dueDate;
     private String email;
+    @Enumerated(EnumType.STRING)
+    private BillType type;
+    @Enumerated(EnumType.STRING)
+    private CreditCardName creditCardName;
 
     public Long getId() {
         return id;
@@ -47,5 +53,21 @@ public class Bill {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public BillType getType() {
+        return type;
+    }
+
+    public void setType(BillType type) {
+        this.type = type;
+    }
+
+    public CreditCardName getCreditCardName() {
+        return creditCardName;
+    }
+
+    public void setCreditCardName(CreditCardName creditCardName) {
+        this.creditCardName = creditCardName;
     }
 }
