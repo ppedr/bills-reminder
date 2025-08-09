@@ -1,6 +1,7 @@
 package com.example.bills.service;
 
 import com.example.bills.model.Bill;
+import com.example.bills.model.BillType;
 import com.example.bills.repository.BillRepository;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -27,6 +28,9 @@ public class BillService {
 
     @Transactional
     public Bill save(Bill bill) {
+        if (bill.getType() == BillType.CREDIT_CARD && bill.getCreditCardName() == null) {
+            throw new IllegalArgumentException("Credit card bills must include card name");
+        }
         return billRepository.save(bill);
     }
 

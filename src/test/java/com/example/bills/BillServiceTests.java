@@ -1,7 +1,7 @@
 package com.example.bills;
 
 import com.example.bills.model.Bill;
-import com.example.bills.repository.BillRepository;
+import com.example.bills.model.BillType;
 import com.example.bills.service.BillService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,15 +12,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.SimpleMailMessage;
 
 import java.time.LocalDate;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 class BillServiceTests {
 
     @Autowired
     private BillService billService;
-
-    @Autowired
-    private BillRepository billRepository;
 
     @MockBean
     private JavaMailSender mailSender;
@@ -31,10 +29,22 @@ class BillServiceTests {
         bill.setName("Internet");
         bill.setDueDate(LocalDate.now());
         bill.setEmail("test@example.com");
-        billRepository.save(bill);
+        bill.setType(BillType.INTERNET);
+        billService.save(bill);
 
         billService.sendDueBillsReminders();
 
         Mockito.verify(mailSender).send(Mockito.any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void creditCardRequiresCardName() {
+        Bill bill = new Bill();
+        bill.setName("Credit Card");
+        bill.setDueDate(LocalDate.now());
+        bill.setEmail("test@example.com");
+        bill.setType(BillType.CREDIT_CARD);
+
+        assertThrows(IllegalArgumentException.class, () -> billService.save(bill));
     }
 }
