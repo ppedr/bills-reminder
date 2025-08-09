@@ -31,4 +31,9 @@ public class BillController {
         log.info("Fetching all bills");
         return billService.findAll();
     }
+    
+    @GetMapping("/reminder")
+    public void forceReminder() {
+    	billService.sendDueBillsReminders();
+    }
 }

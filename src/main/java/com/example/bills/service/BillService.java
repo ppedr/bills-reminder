@@ -45,8 +45,12 @@ public class BillService {
             try {
                 mailSender.send(message);
             } catch (MailException e) {
-                log.warn("Failed to send reminder for {}: {}", bill.getName(), e.getMessage());
+                log.error("Failed to send reminder for {}: {}", bill.getName(), e.getMessage());
             }
+        }
+        
+        if (dueBills.isEmpty()) {
+        	log.warn("There are no bills to be reminded");
         }
     }
 }
