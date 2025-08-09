@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.SimpleMailMessage;
 
 import java.time.LocalDate;
 
@@ -34,6 +35,6 @@ class BillServiceTests {
 
         billService.sendDueBillsReminders();
 
-        Mockito.verify(mailSender).send(Mockito.any());
+        Mockito.verify(mailSender).send(Mockito.any(SimpleMailMessage.class));
     }
 }
