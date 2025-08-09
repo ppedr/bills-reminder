@@ -48,7 +48,6 @@ public class BillService {
             } catch (MailException e) {
                 logger.warn("Failed to send reminder for {}: {}", bill.getName(), e.getMessage());
             }
-            mailSender.send(message);
         }
     }
 }
