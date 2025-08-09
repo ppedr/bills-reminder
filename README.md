@@ -24,10 +24,4 @@ mvn test
 - `GET /bills/reminder` – manually trigger due bill reminders.
 - `POST /bills/{id}/paid` – mark a bill as paid so no reminder is sent.
 
-## Web Interface
-
-Static pages are available under `src/main/resources/static`:
-
-- `create.html` – form for creating a bill.
-- `paid.html` – view paid bills by month.
-- `unpaid.html` – view unpaid bills by month with an option to mark them as paid.
+This project focuses solely on the backend API. A separate UI can be developed to consume these endpoints.
