@@ -56,14 +56,24 @@ document.getElementById('billForm').addEventListener('submit', async (e) => {
         creditCardName: typeSelect.value === 'CREDIT_CARD' ? document.getElementById('cardName').value : null,
         paid: false
     };
-    await fetch('/bills', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bill)
-    });
-    alert('Bill created!');
-    e.target.reset();
-    cardDiv.style.display = 'none';
+
+    try {
+        const res = await fetch('/bills', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(bill)
+        });
+
+        if (!res.ok) {
+            throw new Error('Failed to save bill');
+        }
+
+        alert('Bill created!');
+        e.target.reset();
+        cardDiv.style.display = 'none';
+    } catch (err) {
+        alert(err.message);
+    }
 });
 </script>
 </body>
