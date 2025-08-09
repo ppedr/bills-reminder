@@ -53,26 +53,35 @@ public class BillService {
     void sendDueBillsReminders(LocalDate today) {
         List<Bill> bills = billRepository.findByPaidFalse();
         boolean reminderSent = false;
+        String subject = "";
+        String body = "";
 
         for (Bill bill : bills) {
             LocalDate dueDate = calculateNextDueDate(bill, today);
             if (today.equals(dueDate.minusDays(1))) {
-                sendEmail(bill, "Bill due tomorrow: " + bill.getName(),
-                        "Your bill " + bill.getName() + " is due on " + dueDate + ".");
+            	subject = String.format("Bill due tomorrow: %s", bill.getName());
+            	body = String.format("Your bill %s is due on %s.", bill.getName(), dueDate);
+                sendEmail(bill, subject, body);
+                
                 reminderSent = true;
+                break;
             }
 
             LocalDate adjustedDueDate = adjustForWeekend(dueDate);
             if (today.equals(adjustedDueDate)) {
-                sendEmail(bill, "Bill due: " + bill.getName(),
-                        "Your bill " + bill.getName() + " is due today.");
+            	subject = String.format("Bill due: %s", bill.getName());
+            	body = String.format("Your bill %s is due today.", bill.getName());
+            	
+            	sendEmail(bill, subject, body);
                 reminderSent = true;
             }
         }
 
         if (!reminderSent) {
             log.warn("There are no bills to be reminded");
+            return;
         }
+        log.info(subject);
     }
 
     private LocalDate calculateNextDueDate(Bill bill, LocalDate referenceDate) {
