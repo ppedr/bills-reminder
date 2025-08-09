@@ -15,6 +15,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -88,5 +89,32 @@ class BillServiceTest {
         billService.sendDueBillsReminders(LocalDate.of(2024, 5, 10));
 
         verify(mailSender, never()).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void markingBillAsPaidCreatesNextMonthEntry() {
+        Bill bill = new Bill();
+        bill.setId(1L);
+        bill.setName("Internet");
+        bill.setEmail("test@example.com");
+        bill.setType(BillType.INTERNET);
+        bill.setDueDate(LocalDate.of(2024, 5, 10));
+
+        when(billRepository.findById(1L)).thenReturn(Optional.of(bill));
+        when(billRepository.save(any(Bill.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        billService.markAsPaid(1L);
+
+        ArgumentCaptor<Bill> billCaptor = ArgumentCaptor.forClass(Bill.class);
+        verify(billRepository, times(2)).save(billCaptor.capture());
+
+        List<Bill> savedBills = billCaptor.getAllValues();
+        Bill original = savedBills.get(0);
+        Bill nextMonth = savedBills.get(1);
+
+        assertThat(original.isPaid()).isTrue();
+        assertThat(nextMonth.isPaid()).isFalse();
+        assertThat(nextMonth.getDueDate()).isEqualTo(LocalDate.of(2024, 6, 10));
+        assertThat(nextMonth.getName()).isEqualTo(bill.getName());
     }
 }

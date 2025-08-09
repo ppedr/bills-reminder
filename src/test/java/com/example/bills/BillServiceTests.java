@@ -12,7 +12,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.SimpleMailMessage;
 
 import java.time.LocalDate;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class BillServiceTests {
@@ -46,5 +47,27 @@ class BillServiceTests {
         bill.setType(BillType.CREDIT_CARD);
 
         assertThrows(IllegalArgumentException.class, () -> billService.save(bill));
+    }
+
+    @Test
+    void markingAsPaidCreatesNewBill() {
+        Bill bill = new Bill();
+        bill.setName("Water");
+        bill.setDueDate(LocalDate.of(2024, 5, 10));
+        bill.setEmail("test@example.com");
+        bill.setType(BillType.WATER);
+        billService.save(bill);
+
+        billService.markAsPaid(bill.getId());
+
+        List<Bill> bills = billService.findAll();
+        assertEquals(2, bills.size());
+
+        Bill original = bills.stream().filter(b -> b.getId().equals(bill.getId())).findFirst().get();
+        assertTrue(original.isPaid());
+
+        Bill next = bills.stream().filter(b -> !b.getId().equals(bill.getId())).findFirst().get();
+        assertFalse(next.isPaid());
+        assertEquals(LocalDate.of(2024, 6, 10), next.getDueDate());
     }
 }

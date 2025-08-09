@@ -42,7 +42,18 @@ public class BillService {
         Bill bill = billRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Bill not found"));
         bill.setPaid(true);
-        return billRepository.save(bill);
+        Bill savedBill = billRepository.save(bill);
+
+        Bill nextMonthBill = new Bill();
+        nextMonthBill.setName(savedBill.getName());
+        nextMonthBill.setEmail(savedBill.getEmail());
+        nextMonthBill.setType(savedBill.getType());
+        nextMonthBill.setCreditCardName(savedBill.getCreditCardName());
+        nextMonthBill.setDueDate(savedBill.getDueDate().plusMonths(1));
+        nextMonthBill.setPaid(false);
+        billRepository.save(nextMonthBill);
+
+        return savedBill;
     }
 
     @Scheduled(fixedRate = 1 * 60 * 1000)
