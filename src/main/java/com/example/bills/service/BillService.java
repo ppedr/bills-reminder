@@ -8,18 +8,17 @@ import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @Service
 public class BillService {
 
     private final BillRepository billRepository;
     private final JavaMailSender mailSender;
-    private static final Logger logger = LoggerFactory.getLogger(BillService.class);
 
     public BillService(BillRepository billRepository, JavaMailSender mailSender) {
         this.billRepository = billRepository;
@@ -46,7 +45,7 @@ public class BillService {
             try {
                 mailSender.send(message);
             } catch (MailException e) {
-                logger.warn("Failed to send reminder for {}: {}", bill.getName(), e.getMessage());
+                log.warn("Failed to send reminder for {}: {}", bill.getName(), e.getMessage());
             }
             mailSender.send(message);
         }
