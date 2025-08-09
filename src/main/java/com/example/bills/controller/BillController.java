@@ -32,6 +32,12 @@ public class BillController {
     
     @GetMapping("/reminder")
     public void forceReminder() {
-    	billService.sendDueBillsReminders();
+        billService.sendDueBillsReminders();
+    }
+
+    @PostMapping("/{id}/paid")
+    public Bill markAsPaid(@PathVariable Long id) {
+        log.info("Marking bill {} as paid", id);
+        return billService.markAsPaid(id);
     }
 }

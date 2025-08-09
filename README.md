@@ -14,3 +14,10 @@ Configure an SMTP server via the `spring.mail.*` properties. For local testing y
 ```
 mvn test
 ```
+
+## API
+
+- `POST /bills` – register a new bill.
+- `GET /bills` – list all bills.
+- `GET /bills/reminder` – manually trigger due bill reminders.
+- `POST /bills/{id}/paid` – mark a bill as paid so no reminder is sent.

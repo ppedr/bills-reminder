@@ -37,13 +37,21 @@ public class BillService {
         return billRepository.findAll();
     }
 
+    @Transactional
+    public Bill markAsPaid(Long id) {
+        Bill bill = billRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Bill not found"));
+        bill.setPaid(true);
+        return billRepository.save(bill);
+    }
+
     @Scheduled(fixedRate = 1 * 60 * 1000)
     public void sendDueBillsReminders() {
         sendDueBillsReminders(LocalDate.now());
     }
 
     void sendDueBillsReminders(LocalDate today) {
-        List<Bill> bills = billRepository.findAll();
+        List<Bill> bills = billRepository.findByPaidFalse();
         boolean reminderSent = false;
 
         for (Bill bill : bills) {
