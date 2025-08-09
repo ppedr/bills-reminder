@@ -43,7 +43,7 @@ class BillServiceTest {
         bill.setEmail("test@example.com");
         bill.setType(BillType.INTERNET);
         bill.setDueDate(LocalDate.of(2024, 5, 10));
-        when(billRepository.findAll()).thenReturn(List.of(bill));
+        when(billRepository.findByPaidFalse()).thenReturn(List.of(bill));
 
         billService.sendDueBillsReminders(LocalDate.of(2024, 5, 9));
 
@@ -58,11 +58,20 @@ class BillServiceTest {
         bill.setEmail("test@example.com");
         bill.setType(BillType.ELECTRICITY);
         bill.setDueDate(LocalDate.of(2024, 5, 25)); // Saturday
-        when(billRepository.findAll()).thenReturn(List.of(bill));
+        when(billRepository.findByPaidFalse()).thenReturn(List.of(bill));
 
         billService.sendDueBillsReminders(LocalDate.of(2024, 5, 27)); // Monday
 
         verify(mailSender).send(mailCaptor.capture());
         assertThat(mailCaptor.getValue().getSubject()).contains("Bill due:");
+    }
+
+    @Test
+    void shouldNotSendReminderForPaidBills() {
+        when(billRepository.findByPaidFalse()).thenReturn(List.of());
+
+        billService.sendDueBillsReminders(LocalDate.of(2024, 5, 10));
+
+        verify(mailSender, never()).send(any(SimpleMailMessage.class));
     }
 }

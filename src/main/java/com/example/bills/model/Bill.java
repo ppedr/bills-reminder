@@ -26,4 +26,5 @@ public class Bill {
     private BillType type;
     @Enumerated(EnumType.STRING)
     private CreditCardName creditCardName;
+    private boolean paid;
 }
