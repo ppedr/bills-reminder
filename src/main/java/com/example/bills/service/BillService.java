@@ -9,6 +9,7 @@ import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
@@ -16,15 +17,11 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class BillService {
 
     private final BillRepository billRepository;
     private final JavaMailSender mailSender;
-
-    public BillService(BillRepository billRepository, JavaMailSender mailSender) {
-        this.billRepository = billRepository;
-        this.mailSender = mailSender;
-    }
 
     @Transactional
     public Bill save(Bill bill) {
