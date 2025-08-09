@@ -47,32 +47,26 @@ public class BillService {
 
     @Scheduled(fixedRate = 1 * 60 * 1000)
     public void sendDueBillsReminders() {
-        sendDueBillsReminders(LocalDate.now());
+        sendDueBillsReminders(LocalDate.now().minusDays(2l));
     }
 
     void sendDueBillsReminders(LocalDate today) {
         List<Bill> bills = billRepository.findByPaidFalse();
-        boolean reminderSent = false;
 
         for (Bill bill : bills) {
+        	LocalDate dueDate = calculateNextDueDate(bill, today);
+        	
             if (handleOverdue(bill, today)) {
-                reminderSent = true;
-                continue;
+            	//
             }
-
-            LocalDate dueDate = calculateNextDueDate(bill, today);
-            if (handleDueTomorrow(bill, today, dueDate)) {
-                reminderSent = true;
-                break;
+            else if (handleDueTomorrow(bill, today, dueDate)) {
+            	//
             }
-
-            if (handleDueToday(bill, today, dueDate)) {
-                reminderSent = true;
+            else if (handleDueToday(bill, today, dueDate)) {
+            	//
+            } else {
+            	log.warn("There are no bills to be reminded");
             }
-        }
-
-        if (!reminderSent) {
-            log.warn("There are no bills to be reminded");
         }
     }
 
@@ -83,7 +77,7 @@ public class BillService {
         LocalDate adjustedDueDateThisMonth = adjustForWeekend(dueDateThisMonth);
         if (today.isAfter(adjustedDueDateThisMonth)) {
             String subject = String.format("Bill overdue: %s", bill.getName());
-            String body = String.format("Your bill %s was due on %s. Please mark it as paid.",
+            String body = String.format("Your bill %s was due on %s. Please pay(if not) and mark it as paid.",
                     bill.getName(), adjustedDueDateThisMonth);
             sendEmail(bill, subject, body);
             log.info(subject);
