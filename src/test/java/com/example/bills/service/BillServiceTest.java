@@ -67,6 +67,21 @@ class BillServiceTest {
     }
 
     @Test
+    void shouldSendReminderWhenBillIsOverdue() {
+        Bill bill = new Bill();
+        bill.setName("Water");
+        bill.setEmail("test@example.com");
+        bill.setType(BillType.WATER);
+        bill.setDueDate(LocalDate.of(2024, 5, 10));
+        when(billRepository.findByPaidFalse()).thenReturn(List.of(bill));
+
+        billService.sendDueBillsReminders(LocalDate.of(2024, 5, 11));
+
+        verify(mailSender).send(mailCaptor.capture());
+        assertThat(mailCaptor.getValue().getSubject()).contains("Bill overdue");
+    }
+
+    @Test
     void shouldNotSendReminderForPaidBills() {
         when(billRepository.findByPaidFalse()).thenReturn(List.of());
 
