@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
+import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -94,6 +95,19 @@ class BillServiceTest {
         billService.sendDueBillsReminders(LocalDate.of(2024, 5, 11));
 
         verify(mailSender, never()).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void shouldKeepDueDateWhenBillIsInFutureMonth() throws Exception {
+        Bill bill = new Bill();
+        bill.setDueDate(LocalDate.of(2024, 8, 10));
+
+        Method method = BillService.class.getDeclaredMethod("calculateNextDueDate", Bill.class, LocalDate.class);
+        method.setAccessible(true);
+
+        LocalDate result = (LocalDate) method.invoke(billService, bill, LocalDate.of(2024, 5, 11));
+
+        assertThat(result).isEqualTo(bill.getDueDate());
     }
 
     @Test
