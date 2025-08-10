@@ -3,6 +3,7 @@ package com.example.bills;
 import com.example.bills.model.Bill;
 import com.example.bills.model.BillType;
 import com.example.bills.service.BillService;
+import com.example.bills.service.EmailService;
 import com.example.bills.repository.BillRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,8 +11,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.SimpleMailMessage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,7 +26,7 @@ class BillServiceTests {
     private BillRepository billRepository;
 
     @MockBean
-    private JavaMailSender mailSender;
+    private EmailService emailService;
 
     @BeforeEach
     void clean() {
@@ -45,7 +44,7 @@ class BillServiceTests {
 
         billService.sendDueBillsReminders();
 
-        Mockito.verify(mailSender).send(Mockito.any(SimpleMailMessage.class));
+        Mockito.verify(emailService).sendEmail(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
     }
 
     @Test

@@ -10,8 +10,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 
 import java.lang.reflect.Method;
 import java.time.LocalDate;
@@ -27,15 +25,15 @@ class BillServiceTest {
     @Mock
     private BillRepository billRepository;
     @Mock
-    private JavaMailSender mailSender;
+    private EmailService emailService;
     @Captor
-    private ArgumentCaptor<SimpleMailMessage> mailCaptor;
+    private ArgumentCaptor<String> subjectCaptor;
 
     private BillService billService;
 
     @BeforeEach
     void setUp() {
-        billService = new BillService(billRepository, mailSender);
+        billService = new BillService(billRepository, emailService);
     }
 
     @Test
@@ -49,8 +47,8 @@ class BillServiceTest {
 
         billService.sendDueBillsReminders(LocalDate.of(2024, 5, 9));
 
-        verify(mailSender).send(mailCaptor.capture());
-        assertThat(mailCaptor.getValue().getSubject()).contains("Bill due tomorrow");
+        verify(emailService).sendEmail(eq(bill.getEmail()), subjectCaptor.capture(), anyString());
+        assertThat(subjectCaptor.getValue()).contains("Bill due tomorrow");
     }
 
     @Test
@@ -64,8 +62,8 @@ class BillServiceTest {
 
         billService.sendDueBillsReminders(LocalDate.of(2024, 5, 27)); // Monday
 
-        verify(mailSender).send(mailCaptor.capture());
-        assertThat(mailCaptor.getValue().getSubject()).contains("Bill due:");
+        verify(emailService).sendEmail(eq(bill.getEmail()), subjectCaptor.capture(), anyString());
+        assertThat(subjectCaptor.getValue()).contains("Bill due:");
     }
 
     @Test
@@ -79,8 +77,8 @@ class BillServiceTest {
 
         billService.sendDueBillsReminders(LocalDate.of(2024, 5, 11));
 
-        verify(mailSender).send(mailCaptor.capture());
-        assertThat(mailCaptor.getValue().getSubject()).contains("Bill overdue");
+        verify(emailService).sendEmail(eq(bill.getEmail()), subjectCaptor.capture(), anyString());
+        assertThat(subjectCaptor.getValue()).contains("Bill overdue");
     }
 
     @Test
@@ -94,7 +92,7 @@ class BillServiceTest {
 
         billService.sendDueBillsReminders(LocalDate.of(2024, 5, 11));
 
-        verify(mailSender, never()).send(any(SimpleMailMessage.class));
+        verify(emailService, never()).sendEmail(anyString(), anyString(), anyString());
     }
 
     @Test
@@ -116,7 +114,7 @@ class BillServiceTest {
 
         billService.sendDueBillsReminders(LocalDate.of(2024, 5, 10));
 
-        verify(mailSender, never()).send(any(SimpleMailMessage.class));
+        verify(emailService, never()).sendEmail(anyString(), anyString(), anyString());
     }
 
     @Test

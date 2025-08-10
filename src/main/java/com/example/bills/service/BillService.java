@@ -3,14 +3,12 @@ package com.example.bills.service;
 import com.example.bills.model.Bill;
 import com.example.bills.model.BillType;
 import com.example.bills.repository.BillRepository;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -23,7 +21,7 @@ import java.util.List;
 public class BillService {
 
     private final BillRepository billRepository;
-    private final JavaMailSender mailSender;
+    private final EmailService emailService;
 
     @Transactional
     public Bill save(Bill bill) {
@@ -164,14 +162,6 @@ public class BillService {
     }
 
     private void sendEmail(Bill bill, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(bill.getEmail());
-        message.setSubject(subject);
-        message.setText(text);
-        try {
-            mailSender.send(message);
-        } catch (MailException e) {
-            log.error("Failed to send reminder for {}: {}", bill.getName(), e.getMessage());
-        }
+        emailService.sendEmail(bill.getEmail(), subject, text);
     }
 }
