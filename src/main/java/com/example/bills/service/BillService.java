@@ -73,7 +73,7 @@ public class BillService {
         for (Bill bill : bills) {
         	LocalDate dueDate = calculateNextDueDate(bill, today);
         	
-            if (handleOverdue(bill, today)) {
+            if (handleOverdue(bill, today, dueDate)) {
             	//
             }
             else if (handleDueTomorrow(bill, today, dueDate)) {
@@ -87,15 +87,12 @@ public class BillService {
         }
     }
 
-    private boolean handleOverdue(Bill bill, LocalDate today) {
-        int day = bill.getDueDate().getDayOfMonth();
-        LocalDate dueDateThisMonth = LocalDate.of(today.getYear(), today.getMonth(),
-                Math.min(day, today.lengthOfMonth()));
-        LocalDate adjustedDueDateThisMonth = adjustForWeekend(dueDateThisMonth);
-        if (today.isAfter(adjustedDueDateThisMonth)) {
+    private boolean handleOverdue(Bill bill, LocalDate today, LocalDate dueDate) {
+        LocalDate adjustedDueDate = adjustForWeekend(dueDate);
+        if (today.isAfter(adjustedDueDate)) {
             String subject = String.format("Bill overdue: %s", bill.getName());
             String body = String.format("Your bill %s was due on %s. Please pay(if not) and mark it as paid.",
-                    bill.getName(), adjustedDueDateThisMonth);
+                    bill.getName(), adjustedDueDate);
             sendEmail(bill, subject, body);
             log.info(subject);
             return true;
