@@ -124,7 +124,16 @@ public class BillService {
     }
 
     private LocalDate calculateNextDueDate(Bill bill, LocalDate referenceDate) {
-        int day = bill.getDueDate().getDayOfMonth();
+        LocalDate billDueDate = bill.getDueDate();
+
+        // If the bill's due date is already in a future month, keep it unchanged
+        if (billDueDate.getYear() > referenceDate.getYear() ||
+                (billDueDate.getYear() == referenceDate.getYear() &&
+                        billDueDate.getMonthValue() > referenceDate.getMonthValue())) {
+            return billDueDate;
+        }
+
+        int day = billDueDate.getDayOfMonth();
 
         LocalDate dueDateThisMonth = LocalDate.of(referenceDate.getYear(), referenceDate.getMonth(),
                 Math.min(day, referenceDate.lengthOfMonth()));
