@@ -44,6 +44,14 @@ public class BillService {
     }
 
     @Transactional
+    public void delete(Long id) {
+        if (!billRepository.existsById(id)) {
+            throw new IllegalArgumentException("Bill not found");
+        }
+        billRepository.deleteById(id);
+    }
+
+    @Transactional
     public Bill markAsPaid(Long id) {
         Bill bill = billRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Bill not found"));
