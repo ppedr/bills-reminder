@@ -6,15 +6,15 @@ spring:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.community.dialect.SQLiteDialect
-  mail:
-    # dummy mail configuration
-    host: localhost
-    port: 2525
   web:
     cors:
       allowed-origins: "*"
       allowed-methods: "*"
       allowed-headers: "*"
+
+mailjet:
+  api-key: YOUR_API_KEY
+  api-secret: YOUR_API_SECRET
 
 server:
   port: 8015
