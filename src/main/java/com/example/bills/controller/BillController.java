@@ -48,6 +48,13 @@ public class BillController {
         billService.sendDueBillsReminders();
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        log.info("Deleting bill {}", id);
+        billService.delete(id);
+    }
+
     @PostMapping("/{id}/paid")
     public Bill markAsPaid(@PathVariable Long id) {
         log.info("Marking bill {} as paid", id);

@@ -82,6 +82,20 @@ class BillServiceTests {
     }
 
     @Test
+    void deletesBill() {
+        Bill bill = new Bill();
+        bill.setName("Internet");
+        bill.setDueDate(LocalDate.now());
+        bill.setEmail("test@example.com");
+        bill.setType(BillType.INTERNET);
+        billService.save(bill);
+
+        billService.delete(bill.getId());
+
+        assertTrue(billService.findAll().isEmpty());
+    }
+
+    @Test
     void findsBillsByMonthAndStatus() {
         Bill paidBill = new Bill();
         paidBill.setName("Electricity");
