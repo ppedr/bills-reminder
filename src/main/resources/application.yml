@@ -1,13 +1,11 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:billsdb
-    driverClassName: org.h2.Driver
+    url: jdbc:sqlite:billsdb.db
+    driverClassName: org.sqlite.JDBC
   jpa:
     hibernate:
       ddl-auto: update
-  h2:
-    console:
-      enabled: true
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
   mail:
     # dummy mail configuration
     host: localhost
