@@ -1,8 +1,8 @@
 package com.example.bills.service;
 
-import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
 import com.mailjet.client.MailjetRequest;
+import com.mailjet.client.ClientOptions;
 import com.mailjet.client.errors.MailjetException;
 import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,11 @@ public class MailjetEmailService implements EmailService {
 
     public MailjetEmailService(@Value("${mailjet.api-key}") String apiKey,
                                @Value("${mailjet.api-secret}") String apiSecret) {
-        this.client = new MailjetClient(apiKey, apiSecret, new ClientOptions("v3.1"));
+        ClientOptions options = ClientOptions.builder()
+                .apiKey(apiKey)
+                .apiSecretKey(apiSecret)
+                .build();
+        this.client = new MailjetClient(options);
     }
 
     @Override
