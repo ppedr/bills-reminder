@@ -68,33 +68,36 @@ public class BillService {
         return savedBill;
     }
 
-    @Scheduled(fixedRate = 1 * 60 * 1000)
+   @Scheduled(fixedRate = 1 * 60 * 1000)
     public void sendDueBillsReminders() {
-        sendDueBillsReminders(LocalDate.now().minusDays(2l));
+        sendDueBillsReminders(LocalDate.now());
     }
 
     void sendDueBillsReminders(LocalDate today) {
         List<Bill> bills = billRepository.findByPaidFalse();
 
         for (Bill bill : bills) {
-        	LocalDate dueDate = calculateNextDueDate(bill, today);
-        	
-            if (handleOverdue(bill, today, dueDate)) {
+            if (handleOverdue(bill, today)) {
             	//
             }
-            else if (handleDueTomorrow(bill, today, dueDate)) {
+            else if (handleDueTomorrow(bill, today)) {
             	//
             }
-            else if (handleDueToday(bill, today, dueDate)) {
+            else if (handleDueToday(bill, today)) {
             	//
-            } else {
-            	log.warn("There are no bills to be reminded");
+            } 
+            else {
+            	log.info("There is no need to notify user about the bill {}", bill.getName());
             }
+        }
+        
+        if (bills.isEmpty()) {
+        	log.warn("There are no bills to be reminded");
         }
     }
 
-    private boolean handleOverdue(Bill bill, LocalDate today, LocalDate dueDate) {
-        LocalDate adjustedDueDate = adjustForWeekend(dueDate);
+    private boolean handleOverdue(Bill bill, LocalDate today) {
+        LocalDate adjustedDueDate = adjustForWeekend(bill.getDueDate());
         if (today.isAfter(adjustedDueDate)) {
             String subject = String.format("Bill overdue: %s", bill.getName());
             String body = String.format("Your bill %s was due on %s. Please pay(if not) and mark it as paid.",
@@ -106,10 +109,10 @@ public class BillService {
         return false;
     }
 
-    private boolean handleDueTomorrow(Bill bill, LocalDate today, LocalDate dueDate) {
-        if (today.equals(dueDate.minusDays(1))) {
+    private boolean handleDueTomorrow(Bill bill, LocalDate today) {
+        if (today.equals(bill.getDueDate().minusDays(1L))) {
             String subject = String.format("Bill due tomorrow: %s", bill.getName());
-            String body = String.format("Your bill %s is due on %s.", bill.getName(), dueDate);
+            String body = String.format("Your bill %s is due on %s.", bill.getName(), bill.getDueDate());
             sendEmail(bill, subject, body);
             log.info(subject);
             return true;
@@ -117,42 +120,24 @@ public class BillService {
         return false;
     }
 
-    private boolean handleDueToday(Bill bill, LocalDate today, LocalDate dueDate) {
-        LocalDate adjustedDueDate = adjustForWeekend(dueDate);
-        if (today.equals(adjustedDueDate)) {
-            String subject = String.format("Bill due: %s", bill.getName());
-            String body = String.format("Your bill %s is due today.", bill.getName());
-            sendEmail(bill, subject, body);
-            log.info(subject);
-            return true;
-        }
-        return false;
-    }
-
-    private LocalDate calculateNextDueDate(Bill bill, LocalDate referenceDate) {
-        LocalDate billDueDate = bill.getDueDate();
-
-        // If the bill's due date is already in a future month, keep it unchanged
-        if (billDueDate.getYear() > referenceDate.getYear() ||
-                (billDueDate.getYear() == referenceDate.getYear() &&
-                        billDueDate.getMonthValue() > referenceDate.getMonthValue())) {
-            return billDueDate;
-        }
-
-        int day = billDueDate.getDayOfMonth();
-
-        LocalDate dueDateThisMonth = LocalDate.of(referenceDate.getYear(), referenceDate.getMonth(),
-                Math.min(day, referenceDate.lengthOfMonth()));
-        LocalDate adjustedThisMonth = adjustForWeekend(dueDateThisMonth);
-
-        if (!referenceDate.isAfter(adjustedThisMonth)) {
-            return dueDateThisMonth;
-        }
-
-        LocalDate nextMonth = referenceDate.plusMonths(1);
-        return LocalDate.of(nextMonth.getYear(), nextMonth.getMonth(),
-                Math.min(day, nextMonth.lengthOfMonth()));
-    }
+	private boolean handleDueToday(Bill bill, LocalDate today) {
+		LocalDate adjustedDueDate = adjustForWeekend(bill.getDueDate());
+		if (today.equals(bill.getDueDate()) && today.equals(adjustedDueDate)) {
+			String subject = String.format("Bill due: %s", bill.getName());
+			String body = String.format("Your bill %s is due today.", bill.getName());
+			sendEmail(bill, subject, body);
+			log.info(subject);
+			return true;
+		} else if (today.equals(bill.getDueDate()) && !today.equals(adjustedDueDate)) {
+			String subject = String.format("Bill due: %s", bill.getName());
+			String body = String.format("Your bill %s is due today. Since it is during the weekend, you must pay it %s",
+					bill.getName(), adjustedDueDate);
+			sendEmail(bill, subject, body);
+			log.info(subject);
+			return true;
+		}
+		return false;
+	}
 
     private LocalDate adjustForWeekend(LocalDate date) {
         if (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) {

@@ -1,22 +1,24 @@
 package com.example.bills.service;
 
-import com.mailjet.client.MailjetClient;
-import com.mailjet.client.MailjetRequest;
-import com.mailjet.client.ClientOptions;
-import com.mailjet.client.errors.MailjetException;
-import com.mailjet.client.errors.MailjetSocketTimeoutException;
-import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.mailjet.client.ClientOptions;
+import com.mailjet.client.MailjetClient;
+import com.mailjet.client.MailjetRequest;
+import com.mailjet.client.errors.MailjetException;
+
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Service
 public class MailjetEmailService implements EmailService {
-
     private final MailjetClient client;
-    private final String fromEmail = "noreply@billsreminder.com";
+    
+    @Value("${mailjet.from}")
+    private String fromEmail;
 
     public MailjetEmailService(@Value("${mailjet.api-key}") String apiKey,
                                @Value("${mailjet.api-secret}") String apiSecret) {
@@ -41,7 +43,7 @@ public class MailjetEmailService implements EmailService {
                                 .put(com.mailjet.client.resource.Emailv31.Message.TEXTPART, body)));
         try {
             client.post(request);
-        } catch (MailjetException | MailjetSocketTimeoutException e) {
+        } catch (MailjetException e) {
             log.error("Failed to send email via Mailjet: {}", e.getMessage());
         }
     }
