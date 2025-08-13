@@ -7,5 +7,6 @@ public enum BillType {
     MEI,
     ELECTRICITY,
     GAS,
-    CREDIT_CARD
+    CREDIT_CARD,
+    OTHER
 }
