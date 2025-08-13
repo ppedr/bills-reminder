@@ -68,7 +68,7 @@ public class BillService {
         return savedBill;
     }
 
-   @Scheduled(fixedRate = 1 * 60 * 1000)
+    @Scheduled(cron = "0 0 10 * * *", zone = "America/Sao_Paulo")
     public void sendDueBillsReminders() {
         sendDueBillsReminders(LocalDate.now());
     }
