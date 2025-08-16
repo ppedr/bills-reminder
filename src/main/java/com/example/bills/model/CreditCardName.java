@@ -4,6 +4,5 @@ public enum CreditCardName {
     INTER,
     ITAU,
     XP,
-    PICPAY,
-    OTHER
+    PICPAY
 }
