@@ -4,8 +4,10 @@ spring:
     driverClassName: org.sqlite.JDBC
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     database-platform: org.hibernate.community.dialect.SQLiteDialect
+  flyway:
+    enabled: true
   web:
     cors:
       allowed-origins: "*"
